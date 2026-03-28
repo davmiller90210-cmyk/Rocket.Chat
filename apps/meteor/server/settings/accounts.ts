@@ -169,9 +169,9 @@ export const createAccountSettings = () =>
 			});
 		});
 		await this.section('Iframe', async function () {
-			await this.add('Accounts_iframe_enabled', false, { type: 'boolean', public: true });
-			await this.add('Accounts_iframe_url', '', { type: 'string', public: true });
-			await this.add('Accounts_Iframe_api_url', '', { type: 'string', public: true });
+			await this.add('Accounts_iframe_enabled', true, { type: 'boolean', public: true });
+			await this.add('Accounts_iframe_url', 'http://localhost:3001', { type: 'string', public: true });
+			await this.add('Accounts_Iframe_api_url', 'http://localhost:3001/api/auth/validate', { type: 'string', public: true });
 			await this.add('Accounts_Iframe_api_method', 'POST', { type: 'string', public: true });
 		});
 		await this.add('Accounts_AllowAnonymousRead', false, {
