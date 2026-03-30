@@ -720,6 +720,28 @@ API.v1.post(
 	},
 );
 
+// Fallback for subpath redirects causing GET instead of POST
+API.v1.get(
+	'method.callAnon/:method',
+	{
+		authRequired: false,
+		userWithoutUsername: true,
+		rateLimiterOptions: false,
+		applyMeteorContext: true,
+	},
+	async function action() {
+		const { method } = this.urlParams;
+		const params = this.queryParams.params ? EJSON.parse(this.queryParams.params) : [];
+		const id = this.queryParams.id || 'id';
+
+		try {
+			return API.v1.success(mountResult({ id, result: await Meteor.callAsync(method, ...params) }));
+		} catch (err) {
+			return API.v1.failure(mountResult({ id, error: err }));
+		}
+	},
+);
+
 const smtpCheckResponseSchema = ajv.compile<{ isSMTPConfigured: boolean }>({
 	type: 'object',
 	properties: {
