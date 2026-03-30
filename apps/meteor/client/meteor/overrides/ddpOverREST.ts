@@ -6,8 +6,11 @@ import { getUserId } from '../../lib/user';
 
 const bypassMethods: string[] = ['setUserStatus', 'logout'];
 
+/**
+ * V17: One-App Protocol Fusion - Stable
+ * Disabling the DDP-over-REST fallback to prevent the 405 Method Not Allowed loop
+ */
 const shouldBypass = (_message: Meteor.IDDPMessage): boolean => {
-	// Konnecct V15: Direct Engine Fusion - Force WebSocket only
 	return true;
 };
 
