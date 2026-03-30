@@ -6,24 +6,9 @@ import { getUserId } from '../../lib/user';
 
 const bypassMethods: string[] = ['setUserStatus', 'logout'];
 
-const shouldBypass = ({ msg, method, params }: Meteor.IDDPMessage): boolean => {
-	if (msg !== 'method') {
-		return true;
-	}
-
-	if (method === 'login' && params[0]?.resume) {
-		return true;
-	}
-
-	if (method.startsWith('UserPresence:') || bypassMethods.includes(method)) {
-		return true;
-	}
-
-	if (method.startsWith('stream-')) {
-		return true;
-	}
-
-	return false;
+const shouldBypass = (_message: Meteor.IDDPMessage): boolean => {
+	// Konnecct V15: Direct Engine Fusion - Force WebSocket only
+	return true;
 };
 
 const withDDPOverREST = (_send: (this: Meteor.IMeteorConnection, message: Meteor.IDDPMessage, ...args: unknown[]) => void) => {
