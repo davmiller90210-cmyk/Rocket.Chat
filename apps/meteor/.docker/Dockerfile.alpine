@@ -8,6 +8,7 @@ COPY . /app
 
 ENV NODE_ENV=production
 
+# FORCE: Final stabilization
 RUN cd /app/bundle/programs/server \
     && rm -rf node_modules \
     && npm install --omit=dev \
