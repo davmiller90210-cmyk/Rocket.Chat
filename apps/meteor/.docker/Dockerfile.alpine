@@ -1,52 +1,45 @@
-FROM node:22.16.0-alpine3.22 AS builder
+FROM node:22.16.0-bookworm-slim AS builder
 
-ENV LANG=C.UTF-8
+ENV LANG=C.UTF-8 \
+    NODE_ENV=production
 
-RUN apk add --no-cache python3 make g++ py3-setuptools libc6-compat
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    make \
+    g++ \
+    libvips-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY . /app
 
-ENV NODE_ENV=production
-
-# FORCE: Final stabilization
+# FORCE: Final stabilization for Sharp 0.33+ on Debian
 RUN cd /app/bundle/programs/server \
     && rm -rf node_modules \
     && npm install --omit=dev \
-    && npm install --os=linux --libc=musl --cpu=x64 sharp
+    && npm install --os=linux --cpu=x64 sharp
 
-FROM node:22.16.0-alpine3.22
+FROM node:22.16.0-bookworm-slim
 
 LABEL maintainer="buildmaster@rocket.chat"
 
-ENV LANG=C.UTF-8
-
-# `nogroup` group is historically reserved for NFS.
-# We don't use any NFS related tools in this image.
-# For the same reason of NFS using the gid, we can also use it as long as there are no conflicts in terms of running processes with the same egid (which is 1 in our case).
-# While 65533 raw gid could be used, renaming nogroup to rocketchat here for maximum compatibility with older debian image.
-# More info on nobody/nogroup - https://wiki.ubuntu.com/nobody
-# Debian wiki - https://wiki.debian.org/SystemGroups
-# """
-# daemon: Some unprivileged daemons that need to write to files on disk run as daemon.daemon (e.g., portmap, atd, probably others).
-# Daemons that don't need to own any files can run as nobody.nogroup instead,
-# and more complex or security conscious daemons run as dedicated users.
-# The daemon user is also handy for locally installed daemons.
-# """
-RUN apk add --no-cache shadow deno ttf-dejavu \
-    # Update OpenSSL
-    # CVE -> https://scout.docker.com/vulnerabilities/id/CVE-2025-9230?s=alpine&n=openssl&ns=alpine&t=apk&osn=alpine&osv=3.22
-    && apk upgrade --no-cache openssl \
-    && groupmod -n rocketchat nogroup \
-    && useradd -u 65533 -r -g rocketchat rocketchat
-
-# needs a mongo instance - defaults to container linking with alias 'mongo'
-ENV DEPLOY_METHOD=docker \
+ENV LANG=C.UTF-8 \
+    DEPLOY_METHOD=docker \
     NODE_ENV=production \
     MONGO_URL=mongodb://mongo:27017/rocketchat \
     HOME=/tmp \
     PORT=3000 \
     ROOT_URL=http://localhost:3000 \
     Accounts_AvatarStorePath=/app/uploads
+
+# Create rocketchat user on Debian
+RUN groupmod -n rocketchat nogroup 2>/dev/null || groupadd -r rocketchat \
+    && useradd -r -u 65533 -g rocketchat rocketchat \
+    && mkdir -p /app/uploads \
+    && chown rocketchat:rocketchat /app/uploads \
+    && apt-get update && apt-get install -y --no-install-recommends \
+    fontconfig \
+    libvips42 \
+    && rm -rf /var/lib/apt/lists/*
 
 USER rocketchat
 
