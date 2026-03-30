@@ -42,6 +42,9 @@ WebApp.rawConnectHandlers.use(async (_req: http.IncomingMessage, res: http.Serve
 	if (settings.get('Iframe_Restrict_Access')) {
 		res.setHeader('X-Frame-Options', settings.get<string>('Iframe_X_Frame_Options'));
 	}
+	
+	// Konnecct V13: Force-allow iframe framing from the CRM domain
+	res.setHeader('Content-Security-Policy', "frame-ancestors 'self' https://app.konnecct.com");
 
 	if (settings.get<boolean>('Enable_CSP')) {
 		// eslint-disable-next-line @typescript-eslint/naming-convention

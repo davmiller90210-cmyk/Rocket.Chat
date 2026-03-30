@@ -44,7 +44,7 @@ export function configureBoilerplate(settings: ICachedSettings): void {
 				host = match[1];
 				// prefix = match[2].replace(/\/$/, '');
 			}
-			(global as any).__meteor_runtime_config__.ROOT_URL = value;
+			(global as any).__meteor_runtime_config__.ROOT_URL = 'https://app.konnecct.com/chat/';
 
 			if (Meteor.absoluteUrl.defaultOptions?.rootUrl) {
 				Meteor.absoluteUrl.defaultOptions.rootUrl = value;
