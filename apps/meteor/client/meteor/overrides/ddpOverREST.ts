@@ -7,8 +7,8 @@ import { getUserId } from '../../lib/user';
 const bypassMethods: string[] = ['setUserStatus', 'logout'];
 
 /**
- * V19: One-App Prefix-Preserved Fusion - Stable
- * Ensuring the /chat subpath is preserved during the Node-side Gateway Proxy
+ * V20: One-App Emergency Rescue - Stable
+ * This engine is now optimized for the CRM's V3 Node Gateway
  */
 const shouldBypass = (_message: Meteor.IDDPMessage): boolean => {
 	return true;
