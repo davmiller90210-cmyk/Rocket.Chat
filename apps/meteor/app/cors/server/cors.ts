@@ -100,8 +100,19 @@ WebApp.rawConnectHandlers.use(async (_req: http.IncomingMessage, res: http.Serve
 		res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-Auth-Token, X-User-Id');
 	}
 
-	res.setHeader('Content-Security-Policy', "frame-ancestors 'self' *");
-	res.setHeader('X-Frame-Options', 'ALLOWALL'); // Clearing legacy blocks
+	// V34: Handshake Recovery - Merging ancestors instead of overwriting
+	const existingCSP = res.getHeader('Content-Security-Policy') as string;
+	const ancestors = "frame-ancestors 'self' https://app.konnecct.com";
+	
+	if (existingCSP) {
+		res.setHeader('Content-Security-Policy', `${existingCSP}; ${ancestors}`);
+	} else {
+		res.setHeader('Content-Security-Policy', ancestors);
+	}
+
+	if (origin.includes('konnecct.com')) {
+		res.setHeader('X-Frame-Options', 'ALLOWALL');
+	}
 
 	return next();
 });
