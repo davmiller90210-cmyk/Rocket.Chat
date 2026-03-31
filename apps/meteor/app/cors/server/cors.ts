@@ -90,9 +90,18 @@ WebApp.rawConnectHandlers.use(async (_req: http.IncomingMessage, res: http.Serve
 		);
 	}
 
-	// Konnecct V15: Direct Engine Fusion - Final Security Override
-	res.setHeader('Content-Security-Policy', "frame-ancestors 'self' https://app.konnecct.com");
-	res.setHeader('X-Frame-Options', 'ALLOW-FROM https://app.konnecct.com');
+	// Konnecct V22: NUCLEAR HANDSHAKE - Protocol Stability
+	// Explicitly allowing the parent origin and credentials for the One-App fusion
+	const origin = _req.headers.origin || _req.headers.referer || '';
+	if (origin.includes('konnecct.com')) {
+		res.setHeader('Access-Control-Allow-Origin', origin.replace(/\/$/, ''));
+		res.setHeader('Access-Control-Allow-Credentials', 'true');
+		res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD');
+		res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-Auth-Token, X-User-Id');
+	}
+
+	res.setHeader('Content-Security-Policy', "frame-ancestors 'self' *");
+	res.setHeader('X-Frame-Options', 'ALLOWALL'); // Clearing legacy blocks
 
 	return next();
 });
